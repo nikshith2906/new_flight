@@ -17,138 +17,182 @@ st.set_page_config(
 
 st.markdown("""
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
     
+    /* Variable Definition */
+    :root {
+        --primary-blue: #60a5fa;
+        --accent-purple: #c084fc;
+        --bg-dark: #020617;
+        --card-bg: rgba(255, 255, 255, 0.03);
+        --glass-border: rgba(255, 255, 255, 0.08);
+    }
+
     /* Global Styling */
     html, body, [class*="css"]  {
-        font-family: 'Outfit', sans-serif;
+        font-family: 'Plus Jakarta Sans', sans-serif;
     }
     
-    /* Background Gradient overlaying Streamlit's default */
+    /* Premium Moving Background */
     .stApp {
-        background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+        background: radial-gradient(circle at 10% 20%, rgba(30, 27, 75, 1) 0%, rgba(2, 6, 23, 1) 90.1%);
         color: #f8fafc;
+        overflow-x: hidden;
+    }
+    
+    /* Animated Orbs/Glow Background Effect */
+    .stApp::before {
+        content: "";
+        position: fixed;
+        top: -10%;
+        left: -10%;
+        width: 40%;
+        height: 60%;
+        background: radial-gradient(circle, rgba(96, 165, 250, 0.05) 0%, transparent 70%);
+        z-index: -1;
+        animation: rotate 20s linear infinite;
+    }
+    
+    .stApp::after {
+        content: "";
+        position: fixed;
+        bottom: -10%;
+        right: -10%;
+        width: 50%;
+        height: 70%;
+        background: radial-gradient(circle, rgba(192, 132, 252, 0.05) 0%, transparent 70%);
+        z-index: -1;
+        animation: rotate 15s linear infinite reverse;
     }
 
-    /* Headers */
-    h1, h2, h3 {
-        color: #f8fafc !important;
-        font-weight: 600 !important;
-        letter-spacing: -0.5px;
+    @keyframes rotate {
+        from { transform: rotate(0deg) translate(0, 0); }
+        to { transform: rotate(360deg) translate(20px, 30px); }
     }
 
-    /* Glassmorphism for Fact Cards */
+    /* Shimmering Title Effect */
+    .shimmer-text {
+        background: linear-gradient(
+            90deg, 
+            #60a5fa 0%, 
+            #c084fc 25%, 
+            #fff 50%, 
+            #c084fc 75%, 
+            #60a5fa 100%
+        );
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: shimmer 4s linear infinite;
+        font-weight: 800 !important;
+    }
+
+    @keyframes shimmer {
+        to { background-position: 200% center; }
+    }
+
+    /* Premium Glassmorphism Cards */
     .fact-card {
-        background: rgba(255, 255, 255, 0.03);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 16px;
-        padding: 24px;
+        background: var(--card-bg);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 32px;
         text-align: center;
         height: 100%;
-        color: #cbd5e1;
-        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
-        transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
+        color: #e2e8f0;
+        box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        opacity: 0;
+        animation: slideUpFade 0.8s ease-out forwards;
     }
     
     .fact-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+        transform: translateY(-10px) scale(1.02);
         background: rgba(255, 255, 255, 0.06);
         border: 1px solid rgba(255, 255, 255, 0.2);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), 0 0 20px rgba(96, 165, 250, 0.1);
     }
 
-    /* Risk Outcome Cards */
+    /* Delayed animation for home cards */
+    .card-1 { animation-delay: 0.2s; }
+    .card-2 { animation-delay: 0.4s; }
+    .card-3 { animation-delay: 0.6s; }
+
+    /* Risk Outcome Cards Enhancements */
     .risk-high, .risk-medium, .risk-low {
-        border-radius: 16px;
-        padding: 24px;
-        margin-top: 20px;
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-        animation: fadeIn 0.6s ease-out;
+        border-radius: 24px;
+        padding: 30px;
+        margin-top: 25px;
+        backdrop-filter: blur(25px);
+        -webkit-backdrop-filter: blur(25px);
+        box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        animation: popIn 0.5s cubic-bezier(0.26, 0.53, 0.74, 1.48);
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+    }
+    
+    @keyframes popIn {
+        0% { opacity: 0; transform: scale(0.95) translateY(20px); }
+        100% { opacity: 1; transform: scale(1) translateY(0); }
     }
     
     .risk-high {
-        background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(153, 27, 27, 0.25) 100%);
-        border: 1px solid rgba(239, 68, 68, 0.3);
-        border-left: 6px solid #ef4444;
+        background: linear-gradient(135deg, rgba(239, 68, 68, 0.2) 0%, rgba(127, 29, 29, 0.3) 100%);
+        border: 1px solid rgba(239, 68, 68, 0.4);
+        box-shadow: 0 10px 40px rgba(239, 68, 68, 0.15);
     }
     
     .risk-medium {
-        background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(180, 83, 9, 0.25) 100%);
-        border: 1px solid rgba(245, 158, 11, 0.3);
-        border-left: 6px solid #f59e0b;
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.2) 0%, rgba(146, 64, 14, 0.3) 100%);
+        border: 1px solid rgba(245, 158, 11, 0.4);
+        box-shadow: 0 10px 40px rgba(245, 158, 11, 0.15);
     }
     
     .risk-low {
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.15) 0%, rgba(6, 95, 70, 0.25) 100%);
-        border: 1px solid rgba(16, 185, 129, 0.3);
-        border-left: 6px solid #10b981;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.2) 0%, rgba(6, 95, 70, 0.3) 100%);
+        border: 1px solid rgba(16, 185, 129, 0.4);
+        box-shadow: 0 10px 40px rgba(16, 185, 129, 0.15);
     }
 
-    /* Text styling inside cards */
-    .stat-text {
-        font-size: 1.15em;
-        margin-bottom: 8px;
-        font-weight: 300;
-        color: #f1f5f9;
-    }
-    .stat-text strong {
-        font-weight: 500;
-        color: #ffffff;
+    /* Customizing Streamlit Tabs */
+    .stTabs [data-baseweb="tab-list"] {
+        background-color: var(--card-bg);
+        border-radius: 12px;
+        padding: 5px;
+        border: 1px solid var(--glass-border);
     }
     
-    .action-header {
-        font-size: 0.85em;
-        color: #94a3b8;
-        letter-spacing: 1.5px;
-        margin-top: 20px;
-        margin-bottom: 12px;
-        font-weight: 600;
-        text-transform: uppercase;
+    .stTabs [data-baseweb="tab"] {
+        height: 45px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+    }
+    
+    .stTabs [aria-selected="true"] {
+        background-color: rgba(96, 165, 250, 0.15) !important;
+        color: #60a5fa !important;
     }
 
-    /* Customizing Streamlit buttons */
+    /* Button Glow Effect */
     .stButton>button {
-        background: linear-gradient(135deg, #3b82f6 0%, #4f46e5 100%);
-        color: white;
+        background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+        border-radius: 12px;
         border: none;
-        border-radius: 8px;
-        padding: 10px 24px;
-        font-weight: 600;
-        letter-spacing: 0.5px;
+        height: 3.2rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
-        width: 100%;
     }
     
     .stButton>button:hover {
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(79, 70, 229, 0.4);
-        background: linear-gradient(135deg, #60a5fa 0%, #6366f1 100%);
     }
 
-    /* Tab styling */
-    .stTabs [data-baseweb="tab-list"] {
-        gap: 20px;
-        background-color: transparent;
-    }
-    .stTabs [data-baseweb="tab"] {
-        background-color: transparent !important;
-        border-radius: 8px 8px 0px 0px;
-        padding-top: 10px;
-        padding-bottom: 10px;
-    }
-    .stTabs [aria-selected="true"] {
-        background: rgba(255,255,255,0.05) !important;
-        border-bottom: 2px solid #60a5fa !important;
-    }
-    
-    /* Animations */
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(10px); }
+    @keyframes slideUpFade {
+        from { opacity: 0; transform: translateY(30px); }
         to { opacity: 1; transform: translateY(0); }
     }
     </style>
@@ -290,25 +334,25 @@ def predict_flight(airline, origin_code, dest_code, scheduled_time, month, day_o
 # --- UI COMPONENTS ---
 def render_home():
     st.markdown("""
-        <div style='text-align: center; padding: 2.5rem 0 1rem 0; animation: fadeIn 0.8s ease-out;'>
-            <h1 style='font-size: 4.8rem; font-weight: 700; background: linear-gradient(135deg, #60a5fa 0%, #c084fc 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 0px;'>
+        <div style='text-align: center; padding: 4rem 0 2rem 0;'>
+            <h1 class='shimmer-text' style='font-size: 6rem; margin-bottom: 0px; line-height: 1;'>
                 FlightIQ
             </h1>
-            <p style='color: #94a3b8; font-size: 1.3rem; font-weight: 300; letter-spacing: 1px; margin-top: 0.5rem;'>
-                Next-Generation Flight Risk Intelligence
+            <p style='color: #94a3b8; font-size: 1.4rem; font-weight: 300; letter-spacing: 3px; margin-top: 1rem; text-transform: uppercase;'>
+                Precision Aviation Intelligence
             </p>
         </div>
     """, unsafe_allow_html=True)
     
-    st.markdown("<h4 style='text-align: center; color: #cbd5e1; font-weight: 400; margin-bottom: 2.5rem;'>Navigate to a dashboard using the tabs above ☝️</h4>", unsafe_allow_html=True)
+    st.markdown("<h4 style='text-align: center; color: #cbd5e1; font-weight: 300; margin-bottom: 4rem; opacity: 0.8;'>Unlock operational excellence with AI-driven risk insights</h4>", unsafe_allow_html=True)
     
     col1, col2, col3 = st.columns(3)
     with col1:
-        st.markdown("<div class='fact-card'><div style='font-size: 2rem; margin-bottom: 10px;'>⏱️</div><strong>38%</strong> of delays are caused by Late Aircraft<br><span style='font-size:0.8em; color:#94a3b8;'>— not weather</span></div>", unsafe_allow_html=True)
+        st.markdown("<div class='fact-card card-1'><div style='font-size: 3rem; margin-bottom: 15px;'>🕒</div><strong style='font-size: 1.5rem;'>38%</strong><br>of delays are caused by<br><span style='color: #60a5fa;'>Late Aircraft</span></div>", unsafe_allow_html=True)
     with col2:
-        st.markdown("<div class='fact-card'><div style='font-size: 2rem; margin-bottom: 10px;'>🌅</div><strong>5AM flights</strong> are 8x more reliable<br><span style='font-size:0.8em; color:#94a3b8;'>than 8PM flights</span></div>", unsafe_allow_html=True)
+        st.markdown("<div class='fact-card card-2'><div style='font-size: 3rem; margin-bottom: 15px;'>⚡</div><strong style='font-size: 1.5rem;'>5AM flights</strong><br>are 8x more reliable<br><span style='color: #c084fc;'>than 8PM flights</span></div>", unsafe_allow_html=True)
     with col3:
-        st.markdown("<div class='fact-card'><div style='font-size: 2rem; margin-bottom: 10px;'>🧠</div>Our AI predicts delays with<br><strong style='color:#60a5fa; font-size: 1.2em;'>90.49%</strong> accuracy</div>", unsafe_allow_html=True)
+        st.markdown("<div class='fact-card card-3'><div style='font-size: 3rem; margin-bottom: 15px;'>🚀</div><strong style='font-size: 1.5rem;'>90.49%</strong><br>AI Precision in<br><span style='color: #fff;'>historical delay patterns</span></div>", unsafe_allow_html=True)
 
 def render_operations(airlines, airport_mapping):
     st.title("Operations Alert System")
