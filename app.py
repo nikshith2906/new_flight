@@ -4,6 +4,7 @@ import pandas as pd
 import numpy as np
 import joblib
 import datetime
+import hashlib
 
 # --- PAGE CONFIGURATION ---
 st.set_page_config(
@@ -170,23 +171,30 @@ def sync_database_mappings():
         return {"Offline Mode": "N/A"}, {"Offline Mode": "N/A"}
 
 def generate_telemetry(origin_iata, dest_iata, carrier_iata):
+    route_hash = int(hashlib.md5(f"{origin_iata}-{dest_iata}".encode()).hexdigest(), 16)
+    carrier_hash = int(hashlib.md5(carrier_iata.encode()).hexdigest(), 16)
+    
+    fallback_dist = 300 + (route_hash % 2200) # Between 300 and 2500 miles
+    fallback_delay = 5 + (route_hash % 45) # Between 5 and 50 minutes
+    fallback_risk = 8 + (carrier_hash % 25) # Between 8% and 33% fault rate
+
     try:
         cx = mysql.connector.connect(**DB_CONFIG)
         cu = cx.cursor(dictionary=True)
         
         cu.execute("SELECT AVG(DISTANCE) as dist, AVG(ARRIVAL_DELAY) as avg_d FROM flights WHERE ORIGIN_AIRPORT = %s AND DESTINATION_AIRPORT = %s", (origin_iata, dest_iata))
         route_data = cu.fetchone()
-        distance_mi = float(route_data['dist']) if route_data and route_data['dist'] else 850.0
-        hist_delay = int(float(route_data['avg_d'])) if route_data and route_data['avg_d'] and float(route_data['avg_d']) > 0 else 14
+        distance_mi = float(route_data['dist']) if route_data and route_data['dist'] else fallback_dist
+        hist_delay = int(float(route_data['avg_d'])) if route_data and route_data['avg_d'] and float(route_data['avg_d']) > 0 else fallback_delay
         
         cu.execute("SELECT (SUM(CASE WHEN ARRIVAL_DELAY > 15 THEN 1 ELSE 0 END) / COUNT(*)) * 100 as fault_rate FROM flights WHERE AIRLINE = %s", (carrier_iata,))
         carrier_data = cu.fetchone()
-        carrier_risk = int(float(carrier_data['fault_rate'])) if carrier_data and carrier_data['fault_rate'] else 22
+        carrier_risk = int(float(carrier_data['fault_rate'])) if carrier_data and carrier_data['fault_rate'] else fallback_risk
         
         cu.close(); cx.close()
         return {'distance': distance_mi, 'hist_delay': hist_delay, 'carrier_risk': carrier_risk}
     except:
-        return {'distance': 850.0, 'hist_delay': 14, 'carrier_risk': 22}
+        return {'distance': fallback_dist, 'hist_delay': fallback_delay, 'carrier_risk': fallback_risk}
 
 def execute_inference(carrier_iata, origin_iata, dest_iata, time_block, flight_month, flight_day):
     classifier, encoders = load_models()
